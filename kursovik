@@ -1,0 +1,232 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace kurs2logic
+{
+    internal class Program
+    {
+        struct graf
+        {
+            public int[,] massSM;
+        }
+
+        const int w = 30;
+        const int h = 6;
+
+        //АЛГОРИТМ ФЛОЙДА \/ \/ \/
+        static void floid(int[,] gf, int[][,] matr)
+        {
+            int ras = Convert.ToInt32(Math.Sqrt(gf.Length));
+            for (int i = 0; i < ras; i++)
+            {
+                for (int j = 0; j < ras; j++)
+                {
+                    matr[0][i, j] = gf[i, j];
+                }
+            }
+            for (int v = 0; v < ras; v++)
+            {
+                for (int i = 0; i < ras; i++)
+                {
+                    for (int j = 0; j < ras; j++)
+                    {
+                        matr[v + 1][i, j] = matr[v][i, j];
+                    }
+                }
+                ras++;
+                ras--;
+                for (int i = 0; i < ras; i++)
+                {
+                    for (int j = 0; j < ras; j++)
+                    {
+                        if (i == v || j == v) { continue; }
+                        if (i == j) { continue; }
+                        if (matr[v][v, j] != 0 && matr[v][i, v] != 0)
+                        {
+                            if (matr[v][i, j] == 0)
+                            {
+                                matr[v + 1][i, j] = matr[v][v, j] + matr[v][i, v];
+                            }
+                            else
+                            {
+                                if (matr[v][i, j] > matr[v][v, j] + matr[v][i, v]) { matr[v + 1][i, j] = matr[v][v, j] + matr[v][i, v]; }
+                            }
+                        }
+
+                    }
+                }
+                ras++;
+                ras--;
+            }
+        }
+        //ГЕНЕРАЦИЯ ГРАФА \/ \/ \/
+        static void graf_gen(int[,] gf)
+        {
+                int ras = Convert.ToInt32(Math.Sqrt(gf.Length));
+                Random rand = new Random(ras);
+                for (int i = 0; i < ras; i++)
+                {
+                    for (int j = 0; j < ras; j++)
+                    {
+                        if (i == j) { gf[i, j] = 0; }
+                        else { gf[i, j] = rand.Next(3); }
+                    }
+                }
+        }
+        //ВЫВОД МАТРИЦЫ ГРАФА \/ \/ \/
+        static void gf_print(int[,] gf)
+        {
+            int ras = Convert.ToInt32(Math.Sqrt(gf.Length));
+                for (int i = 0; i <= ras; i++)
+                {
+                    for (int j = 0; j <= ras; j++)
+                    {
+                        if (i == 0 && j != 0)
+                        {
+                            Console.Write(" " + Convert.ToChar(64 + j));
+                            continue;
+                        }
+                        if (j == 0 && i != 0)
+                        {
+                            Console.Write(Convert.ToChar(64 + i));
+                            continue;
+                        }
+                        if (i == 0 && j == 0)
+                        {
+                            Console.Write("#");
+                            continue;
+                        }
+                        Console.Write(" " + gf[i - 1, j - 1]);
+                    }
+                    Console.WriteLine("");
+                }
+        } 
+        //ИЗМЕНЕНИЕ РАЗМЕРА КОНСОЛИ \/ \/ \/
+        static void consize(int weigh, int hight)
+        {
+            Console.SetWindowSize(weigh - 1, hight - 1);
+            Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
+            Console.SetWindowSize(weigh, hight);
+            Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
+        }
+        //ИЗМЕНЕНИЕ ЦВЕТА КОНСОЛИ \/ \/ \/ 
+        static void sc(byte mod)
+        {
+            switch (mod)
+            {
+                case 0:
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    break;
+            }
+        }
+        static void Main(string[] args)
+        {
+            Console.CursorVisible = false;
+            int mod = 0;
+            graf gf = new graf();
+            int[][,] matr = new int[1][,];
+            sc(0);
+            consize(w, h);
+        MenuMain:
+            Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+            Console.WriteLine(" 1) Сгенерировать граф");
+            Console.WriteLine(" 2) Вывести граф\n");
+            Console.Write("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+            mod = Convert.ToInt32(Console.ReadKey().KeyChar);
+            if ((mod < 49 || mod > 51) && mod != 32)
+            {
+                Console.Clear();
+                consize(w, h);
+                goto MenuMain;
+            }
+            switch (mod)
+            {
+                case 49://СОЗДАНИЕ ГРАФА
+                    {
+                        int ras;
+                        Console.Clear();
+                        consize(w, 8);
+                    ERROR1:
+                        Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+                        Console.WriteLine(" Введите размер графа");
+                        Console.WriteLine(" (от 2 до 14)\n\n\n");
+                        Console.Write("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+                        Console.SetCursorPosition(15, Console.WindowHeight - 3);
+                        if (int.TryParse(Console.ReadLine(), out ras) == false)
+                        {
+                            Console.Clear();
+                            consize(w, 12);
+                            Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+                            sc(2);
+                            Console.WriteLine(" введено некоректное число\n");
+                            sc(0);
+                            goto ERROR1;
+                        }
+                        if (ras < 2)
+                        {
+                            Console.Clear();
+                            consize(w, 13);
+                            Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+                            sc(2);
+                            Console.WriteLine(" Размер матрицы должен");
+                            Console.WriteLine(" быть больше!\n");
+                            sc(0);
+                            goto ERROR1;
+                        }
+                        if (ras > 14)
+                        {
+                            Console.Clear();
+                            consize(w,
+                            12);
+                            Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+                            sc(2);
+                            Console.WriteLine(" превышен максимальный размер\n");
+                            sc(0);
+                            goto ERROR1;
+                        }
+                        gf.massSM = new int[ras, ras];
+                        matr = new int[ras + 1][,];
+                        for (int i = 0; i < ras + 1; i++) { matr[i] = new int[ras, ras]; }
+                        graf_gen(gf.massSM);
+                        floid(gf.massSM, matr);
+                        Console.Clear();
+                        consize(w, h + 4);
+                        Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+                        sc(1);
+                        Console.WriteLine(" !граф успешно создан!\n");
+                        sc(0);
+                        goto MenuMain;
+                    }
+                case 50://ВЫВОД ГРАФА
+                    {
+                        if (gf.massSM == null)
+                        {
+                            Console.Clear();
+                            consize(w, h + 4);
+                            Console.WriteLine("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■");
+                            sc(2);
+                            Console.WriteLine(" графы не сгенерированы\n");
+                            sc(0);
+                            goto MenuMain;
+                        }
+                        Console.Clear();
+                        Console.WriteLine();
+                        consize(Convert.ToInt32(Math.Sqrt(gf.massSM.Length)) * 2 + 2, Convert.ToInt32(Math.Sqrt(gf.massSM.Length)) + 5);
+                        for (int i = 0; i <= Math.Sqrt(gf.massSM.Length); i++)
+                        {
+                            Console.Clear();
+                            Console.WriteLine(i + "\n");
+                            gf_print(matr[i]);
+                            Console.ReadKey();
+                        }
+                        Console.Clear();
+                        consize(w, h);
+                        goto MenuMain;
+                    }
+            }
+        }
+    }
+}
